@@ -63,7 +63,7 @@ resource "aws_route_table_association" "websrv_rt_assoc" {
 
 resource "aws_security_group" "websrv_sg_01" {
   name        = "Webserver-SG"
-  description = "Allow TLS inbound SSH and HTTP"
+  description = "Allow TLS inbound SSH, HTTP and HTTPS"
   vpc_id      = aws_vpc.websrv_01.id
 
   tags = {
@@ -87,13 +87,19 @@ resource "aws_vpc_security_group_ingress_rule" "websrv_sg_http" {
   to_port           = 80
 }
 
+resource "aws_vpc_security_group_ingress_rule" "websrv_sg_https" {
+  security_group_id = aws_security_group.websrv_sg_01.id
+  cidr_ipv4         = "0.0.0.0/0"
+  from_port         = 443
+  ip_protocol       = "tcp"
+  to_port           = 443
+}
+
 resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
   security_group_id = aws_security_group.websrv_sg_01.id
   cidr_ipv4         = "0.0.0.0/0"
   ip_protocol       = "-1" # semantically equivalent to all ports
 }
-
-
 
 data "aws_ami" "ubuntu" {
   most_recent = true
